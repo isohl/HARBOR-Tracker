@@ -71,3 +71,28 @@ To report bugs or request specific features, please use the Github issue tracker
  * [Sheyne Anderson](https://github.com/Sheyne)
 For queries about the HARBOR project contact:
  * [John Sohl (PI)](http://planet.weber.edu/harbor/contact/default.html)
+
+ 
+# Technical Details
+This section regards the technical workings and minutiae of the system. This should only be relevant if you are planning on modifying or contributing to the code. Also, please note that we would like to maintain the master branch as the current stable release branch, and development should be done in other branches and then merged.
+
+### Main Server
+The core of the tracking system exists in the file `harbor.py` and consists primarily of a Python HTTP Server and an overriden SimpleHTTPHandler class.
+
+Data is stored and maintained in the `Harbor` class, which is shared between the HTTP server context and a thread that regularly reads data from the D710 and updates the data state.
+
+The server feeds out specific HTML files located in the `Scripts` directory over port 8001. It also generated a limited set of data readouts displayed in the web interface.
+
+### Data Input
+APRS packets are loaded on a read-only basis in real time from a connected Kenwood D710-A amateur radio base station. Data is encoded into the APRS format. More information on this protocol can be found here at http://www.aprs.org/doc/APRS101.PDF
+
+Data from the D710 is read in ASCII using the serial interface to the D710. Note that this requires the D710 to be in *packet12*, *aprs12* or a similar mode. The radio requires a startup sequence to instruct it to begin decoding data through the TNC for reading. This is the only component reliant on specifically the Kenwood D710-A, and may be replaced with any alternative system that transmits APRS packets.
+
+ASCII APRS packets are parsed using the Finnish APRS Parser (FAP). More information on FAP can be found at (http://www.pakettiradio.net/libfap/). Note that this is a C library that we have constructed an interface for, but requires a compiled library that may be system dependent. We have compiled versions for Windows NT and Unix based systems and included them in the repository (tested on Windows 7,8,10, Mac OSX Lion, and Debian Ubuntu and Raspbian). You may need to compile it yourself if on a system significantly different from one of these.
+
+We support most standard APRS conventions through the FAP. This includes the mic-e compression format. The internal D710 GPS reports its data through the GPRMC and PKWDPOS formats, which we also support, although less consistently.
+
+### Web Interface
+The HTML and Javascript web interface pages are written using CoffeeScript (http://coffeescript.org/) and must be recompiled into their HTML files after modification. Please recompile these files before submitting the stable branch. Data and interaction are interfaced using standard GET and POST requests. Most information is transmitted via the JSON string format.
+
+Leaflet.js is used to represent all map data, ranging from tiled map data to the tracked lines. Users can make modifications to each polyline by adding a attribute via the /config page to the requisite polyline name.
