@@ -1,10 +1,10 @@
 # HARBOR-Tracker
 ### Tracking software for the HARBOR Balloon Project
 
-This repository contains the code for tracking and telemetry of the Weber State University High Altitude Reseach Ballooning for Outreach and Research (HARBOR) project. More information on this project can be found at http://harbor.weber.edu/.
+This repository contains the code for tracking and telemetry of the Weber State University High Altitude Reconnaissance Ballooning for Outreach and Research (HARBOR) project. More information on this project can be found at http://harbor.weber.edu/.
 
 ### Function
-This software presents an interface to tracking a balloon through the amateur radio APRS format. The intended setup of the system requires a Python-capable computer connected via RS232 to a Kenwood D710 Radio (another radio may be used with a custom start file). The main program then launches a webserver on port 8001 that any computer with access to to the host's IP can access. This webpage displays current information about the balloon (and if available, host radio) and includes the current track plotted on a map of the area.
+This software presents an interface to tracking a balloon through the amateur radio APRS format. The intended setup of the system requires a Python-capable computer connected via RS232 to a Kenwood D710-A Radio (another radio may be used with a custom start file). The main program then launches a webserver on port 8001 that any computer with access to to the host's IP can access. This webpage displays current information about the balloon (and if available, host radio) and includes the current track plotted on a map of the area.
 
 ### Requirements
 Running the main program requires several packages:
@@ -24,7 +24,7 @@ Static (Dropbox) links to working versions of each of our required files can be 
  * [Audio file folder](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
  * [JQuery](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
  * [LeafletJS](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
- * [gmaps.zip](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG) (for the Uintah Basin area, Utah)
+ * [gmaps.zip](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG) (for the Uintah Basin area, Utah) (Warning: 500 MB in size)
 
 ### Resources
 Several files in the operation of the tracking system are user specific, and can be generated to meet demands. The most difficult to acquire is the mapping data for your region. The maps required for operation are Google Maps tilesets that are interpreted and displayed by LeafletJS, but must be pre-downloaded for offline users. Maps available from the HARBOR are limited to our range of operations, and may be replaced by another set downloaded by the user.
@@ -38,17 +38,19 @@ If you are experiencing problems IP blocking, this can be expanded to operate on
 
 ### Operation
 Setting up the system for tracking is a several step process:
+
 1. Prepare your tracking computer by installing all prerequisites and plug it into a Kenwood D710 via a USB-to-RS232 Serial adapter.
 2. Ensure that the D710 is correctly set up for TNC broadcasting of APRS packets (for more information see the manual)
-3. Using Command Prompt (Windows), Bash (Unix), or an equivalent, launch the *harbor.py* file.
-..* If on Windows, you will be prompted to enter the COM port of the radio interface. This can be found in the Device Manager.
+3. Using Command Prompt (Windows), Bash (Unix), or an equivalent, launch the `harbor.py` file.
+  * If on Windows, you will be prompted to enter the COM port of the radio interface. This can be found in the Device Manager.
 4. Assuming no errors have been listed, the tracking system is now running.
 5. In a web browser on the same device type in the web address: <localhost:8001>
-..* This step can also be completed on another device on the same network by substituting 'localhost' with the IP address of the host computer.
-..* The main index page contains the relevant tracking information and maps. 
-6. Specifying settings is done via the *config* page. This is accessed by changing the web address to <localhost:8001/config>.
+  * This step can also be completed on another device on the same network by substituting 'localhost' with the IP address of the host computer.
+  * The main index page contains the relevant tracking information and maps. 
+6. Specifying settings is done via the /config page. This is accessed by changing the web address to <localhost:8001/config>.
 
 When adding track metadata via the /config page, you *must* type in values into all fields. (Note that you can autofill the fields by clicking on the links of existing items in the boxes) The attributes section may be any of the attributes for a Leaflet Polyline object, but the most common is 'color'. For example, to change the color of the a track named 'Balloon' to red, the inputs would be:
+
 Field | Value
 --- | ---
 Track Name: | Balloon
