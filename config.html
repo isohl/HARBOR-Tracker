@@ -1,0 +1,40 @@
+<script type="text/javascript" src="/jquery/jquery-1.10.2.min.js"></script>
+
+<style>
+.clickable{
+	cursor: hand;
+	color: blue;
+	text-decoration: underline;
+}
+</style>
+
+<h2>Track Callsigns</h2>
+<div id='associate-callsign'>
+<table border="1" id='associate-callsign-table'>
+</table>
+<label for="associate-callsign-trackname">Track Name:</label> 
+<input type='text' id='associate-callsign-trackname' />
+<label for="associate-callsign-callsign">Callsign:</label> 
+<input type='text' id='associate-callsign-callsign' />
+<input type='button' value='associate' id='associate-callsign-go'/>
+</div>
+<hr/>
+<h2>Track Metadata</h2>
+<div id='metadata'>
+<table border="1" id='metadata-table'>
+</table>
+<label for="metadata-trackname">Track Name:</label> 
+<input type='text' id='metadata-trackname' />
+<label for="metadata-attribute">Attribute:</label> 
+<input type='text' id='metadata-attribute' />
+<label for="metadata-value">Value:</label> 
+<input type='text' id='metadata-value' />
+<input type='button' value='set' id='metadata-go'/>
+</div>
+<hr/>
+<h2>Resets</h2>
+<input type='button' value='Reset All' id='reset-all'/>
+<input type='button' value='Clear Tracks' id='clear-tracks'/>
+
+<script src="/scripts/config.js">
+</script>
