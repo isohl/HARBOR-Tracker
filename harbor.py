@@ -55,7 +55,7 @@ def handler(harbor):
                         ADDCALLSIGN = '/addcallsign/'
                         REMOVECALLSIGN = '/removecallsign/'
                         GMAPS = '/gmaps/'
-                        STATICS = ('/audio','/leaflet','/jquery', '/scripts')
+                        STATICS = ('/audio','/leaflet','/jquery', '/web')
                         if self.path == "/trackdata":
                                 self.send_response(200, "OKAY")
                                 self.end_headers()
@@ -97,15 +97,15 @@ def handler(harbor):
                         elif self.path == "/":
                                 self.send_response(200, "OKAY")
                                 self.end_headers()
-                                copyfileobj(open('track.html', 'r'),self.wfile)
+                                copyfileobj(open('web/track.html', 'r'),self.wfile)
                         elif self.path == "/config":
                                 self.send_response(200, "OKAY")
                                 self.end_headers()
-                                copyfileobj(open('config.html', 'r'),self.wfile)
+                                copyfileobj(open('web/config.html', 'r'),self.wfile)
                         elif self.path == "/active":
                                 self.send_response(200, "OKAY")
                                 self.end_headers()
-                                copyfileobj(open('active.html', 'r'),self.wfile)
+                                copyfileobj(open('web/active.html', 'r'),self.wfile)
                         elif self.path.startswith(ADDCALLSIGN):
                                 callsign, track = self.path[len(ADDCALLSIGN):].split('/')
                                 self.harbor.addCallsign(cleanup(callsign), cleanup(track))
@@ -128,7 +128,7 @@ def handler(harbor):
                                 # for now this is nicer than an HTTP error. 
                                 self.send_response(200, "OKAY")
                                 self.end_headers()
-                                self.wfile.write('hmm'+"\n")
+                                self.wfile.write('Missing Request'+"\n")
         Handler.harbor = harbor
         return Handler
 
