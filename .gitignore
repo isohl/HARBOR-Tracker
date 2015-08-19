@@ -4,6 +4,8 @@ audio
 jquery
 leaflet
 tnclogs
+*.pyc
+*.pyo
 
 
 
