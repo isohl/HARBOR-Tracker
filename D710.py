@@ -83,12 +83,11 @@ def main(h,com=None):
 			except IndexError:
 				print "Serial Device not connected" #Again, if this isn't working, make sure its plugged in
 			try:
-				filepath = os.path.expanduser(os.path.join('~','tnclogs','tnc.log'))
+				filepath = os.path.join('tnclogs','tnc.log')
 				log=open(filepath,"a")
 			except IOError: #This will only ever have problems if the folder defined doesn't exist
-				print "Ian est un salaud. "
-				os.mkdir(os.path.expanduser(os.path.join('~','tnclogs')))
-				log=open(os.path.expanduser(os.path.join('~','tnclogs','tnc.log')),"a")
+				os.mkdir('tnclogs'))
+				log=open(os.path.join('tnclogs','tnc.log'),"a")
 			log.close()
 		else:
 			if os.name!="posix": #Posix is the special name for Unix (Mac)
@@ -102,7 +101,7 @@ def main(h,com=None):
 				print "Error Connecting to Device" #If you get this, either the device is not responding or is not plugged in
 				import sys
 				sys.exit()
-			filepath = os.path.expanduser("~/tnclogs/tnc.log")
+			filepath = "tnclogs/tnc.log"
 			log=open(filepath,"a") #This opens the log, change it to whichever file you like
 			log.close()
 		#This will run the main startup sequence, which consists of sending a large amount of gibberish to the D710
@@ -146,6 +145,5 @@ def main(h,com=None):
 						continue
 			
 		except serial.SerialException:#In case off failure, or even a keyboard interrupt, this will shut down the port.
-				print "Scott est un salaud"
 				log.close()
 				ser.close()
