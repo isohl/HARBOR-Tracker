@@ -134,8 +134,9 @@ def handler(harbor):
 
 
 class Harbor():
-        def __init__(self, state=False):
+        def __init__(self, mainlock, state=False):
                 doInit = True
+                self.mainlock = mainlock
                 if state:
                         doInit = False
                         try:
@@ -149,7 +150,7 @@ class Harbor():
                 self.gmaps = ZipFile("gmaps.zip", "r")
 
         def init(self):
-                with mainLock:
+                with self.mainLock:
                         self.resetId()
                         self.trackPoints = defaultdict(list)
                         self.trackNames = defaultdict(set)
@@ -162,7 +163,7 @@ class Harbor():
                 self.id = time.time()
 
         def resetPaths(self):
-                with mainLock:
+                with self.mainLock:
                         self.resetId()
                         self.trackPoints = defaultdict(list)
                         self.saveState()
@@ -220,32 +221,7 @@ class Harbor():
                 return {'id':self.id,'tracks':self.getTracks(), 'readouts':self.readouts, 'trackdata': self.trackPoints, 'trackmeta':self.trackMeta}
 
 if __name__=="__main__":
-        mainLock = Lock()
-        h = Harbor(state=True)
-        dontDie = True
-        def src():
-                while dontDie:
-                        with mainLock:
-                                if len(h.trackPoints['Car 1']) > 0:
-                                        last_point = h.trackPoints['Balloon'][-1]
-                                        last_d710_point = h.trackPoints['Car 1'][-1]
-                                else:
-                                        h.addCallsign("WB1SAR-11", "Balloon")
-                                        h.addCallsign("KF7WII-11", "Balloon")
-                                        h.addCallsign("KE7ROS-11", "Balloon")
-                                        h.addCallsign("D710", "Car 1")
-                                        last_d710_point = Point(time.time(),40.191484, -110.385534,1000)
-                                        h.newPoint("D710", last_d710_point)
-                                        last_point = Point(time.time(),40.191584, -110.385634, 1000)
-                                        h.newPoint("WB1SAR-11", last_point)
-
-                                h.readouts['ascent'] += randint(-10, 10)
-                                last_point = Point(time.time(), last_point.latitude + float(randint(-2, 4))/1000, last_point.longitude + float(randint(-2, 6))/1000,1000)
-                                h.newPoint("WB1SAR-11", last_point)
-                                last_d710_point = Point(time.time(), last_d710_point.latitude + float(randint(-2, 4))/1000, last_d710_point.longitude + float(randint(-2, 6))/1000,1000)
-                                h.newPoint("D710", last_d710_point)
-                        time.sleep(3)
-
+        h = Harbor(Lock(),state=True)
         comport = None
         if os.name=="nt":
                 comport = raw_input("What is the name of the COM Port? (COM1, etc) ")
@@ -258,5 +234,3 @@ if __name__=="__main__":
 
         httpd = HTTPServer(('', 8001), handler(h))
         httpd.serve_forever()
-
-        dontDie = False
