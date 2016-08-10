@@ -185,7 +185,7 @@ class Harbor():
 			x_dist = mile_change_longitude(float(point.latitude),float(point.longitude)-(-110.1270281))
 			y_dist = mile_change_latitude(float(point.latitude)-40.1490956)
 			#Myton VOR: 40.1490956, -110.1270281
-			self.readouts["bearing"] = int(math.degrees(math.atan2(y_dist,x_dist)))
+			self.readouts["bearing"] = int(450 - math.degrees(math.atan2(y_dist,x_dist))) % 360
 			self.readouts["range"] = int(math.hypot(x_dist,y_dist)*10)/10
 		self.saveState()
 	
