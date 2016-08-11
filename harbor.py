@@ -6,8 +6,10 @@ from SimpleHTTPServer import SimpleHTTPRequestHandler
 from threading import Thread, Lock
 from random import randint
 import cgi, os, time, json, pickle, math
+import sys
 
 import D710
+import replay
 from helper import *
 
 
@@ -63,7 +65,8 @@ def handler(harbor):
             ADDCALLSIGN = '/addcallsign/'
             REMOVECALLSIGN = '/removecallsign/'
             GMAPS = '/gmaps/'
-            STATICS = ('/audio', '/leaflet', '/jquery', '/web')
+            STATICS = ('/audio', '/leaflet', '/jquery', '/web',
+                       '/scripts')
             if self.path == "/trackdata":
                 self.send_response(200, "OKAY")
                 self.end_headers()
@@ -159,7 +162,7 @@ class Harbor():
         self.gmaps = ZipFile("gmaps.zip", "r")
 
     def init(self):
-        with self.mainLock:
+        with self.mainlock:
             self.resetId()
             self.trackPoints = defaultdict(list)
             self.trackNames = defaultdict(set)
@@ -236,19 +239,26 @@ class Harbor():
 
 
 if __name__ == "__main__":
+    filename = None
+    if "-r" in sys.argv:
+        filename = sys.argv[sys.argv.index("-r")+1]
+
     h = Harbor(Lock(), state=True)
-    comport = None
-    if os.name == "nt":
-        comport = raw_input("What is the name of the COM Port? (COM1, etc) ")
 
+    if filename:
+        player = Thread(target=lambda: replay.Replay(filename,h))
+        player.start()
+    else:
+        comport = None
+        if os.name == "nt":
+            comport = raw_input("What is the name of the COM Port? (COM1, etc) ")
 
-    def initD710():
-        D710.main(h, comport)
+        def initD710():
+            D710.main(h, comport)
 
-
-    t = Thread(target=initD710)
-    t.daemon = True
-    t.start()
+        t = Thread(target=initD710)
+        t.daemon = True
+        t.start()
 
     httpd = HTTPServer(('', 8001), handler(h))
     httpd.serve_forever()

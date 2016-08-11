@@ -7,6 +7,7 @@ tnclogs
 *.pyc
 *.pyo
 .idea
+*.log
 
 
 # Windows image file caches
