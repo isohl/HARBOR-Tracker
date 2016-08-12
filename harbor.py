@@ -176,7 +176,7 @@ class Harbor():
         self.id = time.time()
 
     def resetPaths(self):
-        with self.mainLock:
+        with self.mainlock:
             self.resetId()
             self.trackPoints = defaultdict(list)
             self.saveState()
