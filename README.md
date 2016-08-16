@@ -21,15 +21,15 @@ Note: since this is often required to run offline, where users have no live acce
 
 ### Downloads
 Static (Dropbox) links to working versions of each of our required files can be found here. Each of these files (unless otherwise specified) can be extracted into the root folder of the repository.
- * [Audio file folder](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
- * [JQuery](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
- * [LeafletJS](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
- * [gmaps.zip](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG) (for the Uintah Basin area, Utah) (Warning: 500 MB in size)
+ * [Audio file folder](https://dl.dropboxusercontent.com/u/14409407/HARBOR-3rd-Party/audio.zip)
+ * [JQuery](https://dl.dropboxusercontent.com/u/14409407/HARBOR-3rd-Party/jquery.zip)
+ * [LeafletJS](https://dl.dropboxusercontent.com/u/14409407/HARBOR-3rd-Party/leaflet.zip)
+ * [gmaps.zip](https://dl.dropboxusercontent.com/u/14409407/HARBOR-3rd-Party/gmaps.zip) (for the Uintah Basin area, Utah) (Warning: 500 MB in size)
 
 ### Resources
 Several files in the operation of the tracking system are user specific, and can be generated to meet demands. The most difficult to acquire is the mapping data for your region. The maps required for operation are Google Maps tilesets that are interpreted and displayed by LeafletJS, but must be pre-downloaded for offline users. Maps available from the HARBOR are limited to our range of operations, and may be replaced by another set downloaded by the user.
 The tileset downloader can be found here:
-[downloadTileSet.py](https://dl.dropboxusercontent.com/u/14409407/EVESign.JPG)
+[downloadTileSet.py](https://dl.dropboxusercontent.com/u/14409407/downloadTileSet.py)
 Operation of this file is via command line arguments, and require you to specify your northwest and southeast latitudes and longitudes in decimal degrees format. The format is as follows:
 ```bash
 downloadTileSet.py northlat westlon southlat eastlon
