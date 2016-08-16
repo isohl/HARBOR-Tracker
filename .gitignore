@@ -3,7 +3,11 @@ gmaps.zip
 audio
 jquery
 leaflet
-
+tnclogs
+*.pyc
+*.pyo
+.idea
+*.log
 
 
 # Windows image file caches
@@ -34,7 +38,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
+Icon
+
 
 # Thumbnails
 ._*
