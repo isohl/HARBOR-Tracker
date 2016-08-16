@@ -47,19 +47,9 @@ def latlong(newdata):
     latitude = str(float(output[0][:2]) + (float(output[0][2:7]) / 60))
     longitude = "-" + str(float(output[1][:3]) + (float(output[1][3:8]) / 60))
     # I know, it's terrible...
-    return longitude, latitude
+    return latitude, longitude
 
 
-def determineCompatability(APRSstring, listenfor):
+def determine_compatability(APRSstring):
     """Determine whether the APRS packet is being tracked and compatible with the parser"""
-    if not done:
-        for listento in listenfor:
-            # Iterate through callsigns and check
-            if APRSstring.startswith(listento):
-                returnable = True, listento
-                ##                print returnable
-                return returnable
-    else:
-        return False
-
-##print latlong()
+    return any(APRSstring.startswith(s) for s in ["$PKWDPOS", "$GPRMC"])

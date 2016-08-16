@@ -29,26 +29,4 @@ class Replay(object):
                         self._current_time = timestamp
                         print message
 
-                        # From D710.py:
-                        try:
-                            # Pass the packet to FAP for parsing (accepts MicE, but not D710)
-                            p = fap.Packet(message)
-                            if p.altitude:
-                                point = helper.Point(time=timestamp, altitude=int(p.altitude * 3.28084),
-                                                     latitude=p.latitude, longitude=p.longitude)
-                                self._harbor.newPoint(p.src_callsign, point)
-                        except fap.DecodeError:
-                            # A Decode Error will occur whenever FAP is unable to parse the packet
-                            # In this case, check to see if the packet is a GPRMC or PKWDPOS packet
-                            gpscompatible = decodeTNC.determineCompatability(message, ["$PKWDPOS", "$GPRMC"])
-                            if gpscompatible:
-                                # If it is a D710 packet, parse it.
-                                latlong = decodeTNC.latlong(message)  # returned as (latitude,longitude)
-                                # If we are plotting D710 tracks, Plot it on Google Earth
-                                point = helper.Point(time=timestamp, altitude=0, latitude=latlong[1],
-                                                     longitude=latlong[0])
-                                self._harbor.newPoint("D710", point)
-                            continue
-                        except AttributeError:
-                            print "Error in packet"
-                            continue
+                        self._harbor.submit_packet(message)

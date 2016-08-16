@@ -1,0 +1,7 @@
+1. Refactor HTTPHandler
+2. Redesign web-pages (strip out coffee)
+3. Add better interconnect between client and server
+4. Fix 3rd party libs and assets
+5. Add Kalman filter for estimation
+6. Add prediction code
+7. Add in-flight prediction

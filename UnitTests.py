@@ -8,9 +8,9 @@ def RandomWalk():
     def src():
         while dontDie:
             with mainLock:
-                if len(h.trackPoints['Car 1']) > 0:
-                    last_point = h.trackPoints['Balloon'][-1]
-                    last_d710_point = h.trackPoints['Car 1'][-1]
+                if len(h.paths['Car 1']) > 0:
+                    last_point = h.paths['Balloon'][-1]
+                    last_d710_point = h.paths['Car 1'][-1]
                 else:
                     h.addCallsign("WB1SAR-11", "Balloon")
                     h.addCallsign("KF7WII-11", "Balloon")
