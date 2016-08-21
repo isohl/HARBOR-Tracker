@@ -14,14 +14,6 @@ import replay
 import helper
 
 
-def cleanup(x):
-    return x.replace('_SPACE_', ' ')
-
-
-def defaultStyle():
-    return {'color': '#00f'}
-
-
 class TrackNotFoundError(Exception):
     pass
 
@@ -33,121 +25,99 @@ class HARBORHTTPServer(HTTPServer):
 
 
 class HARBORHandler(SimpleHTTPRequestHandler):
+    def send_file(self, filename):
+        try:
+            self.send_response(200, "OKAY")
+            self.end_headers()
+            copyfileobj(open(filename, 'r'), self.wfile)
+        except Exception, e:
+            print e
+            self.wfile.write("Server error")
 
-    def out_tracks(self):
-        self.send_response(200, "OKAY")
-        self.end_headers()
-        self.json_out(self.server.harbor.getTracks())
+    def send_json(self, data):
+        try:
+            self.send_response(200, "OKAY")
+            self.end_headers()
+            self.wfile.write(json.dumps(data) + "\n")
+        except Exception, e:
+            print e
+            self.wfile.write("Server error")
 
-    def out_meta(self):
-        self.send_response(200, "OKAY")
-        self.end_headers()
-        self.json_out(self.server.harbor.trackMeta)
+    def get_paths(self, requests):
+        if len(requests) == 1:
+            self.send_json(self.harbor.paths)
+        else:
+            paths = {}
+            for r in requests:
+                if r.startswith("callsign="):
+                    callsign = r.replace("callsign=","")
+                    paths[callsign] = self.harbor.get_path(callsign)
+            self.send_json(paths)
 
-    def out_log(self):
-        self.send_response(200, "OKAY")
-        self.end_headers()
-        self.json_out(self.server.harbor.log)
+    def get_readouts(self, requests):
+        if len(requests) == 1:
+            self.send_response(200, "OKAY")
+            self.end_headers()
+            self.wfile.write("Unknown request")
+        else:
+            readouts = {}
+            for r in requests:
+                if r.startswith("callsign="):
+                    callsign = r.replace("callsign=","")
+                    readouts[callsign] = self.harbor.get_readouts(callsign)
+            self.send_json(readouts)
 
-    def json_out(self, obj):
-        self.wfile.write(json.dumps(obj) + "\n")
+    def get_ascent_audio(self):
+        if len(requests) == 2 and requests[1].startswith("callsign="):
+            callsign = r.replace("callsign=","")
+            ascent_rate = self.harbor.get_ascent(callsign)
+            filename = "./audio/asc" + str(abs(int(ascent_rate / 100))) + ".mp3"
+            self.send_file(filename)
+        else:
+            self.send_response(200, "OKAY")
+            self.end_headers()
+            self.wfile.write("Unknown request")
+
+
+    def get_altitude_audio(self):
+        if len(requests) == 2 and requests[1].startswith("callsign="):
+            callsign = r.replace("callsign=","")
+            altitude = self.harbor.get_altitude(callsign)
+            filename = "./audio/alt" + str(int(altitude / 1000)) + ".mp3"
+            self.send_file(filename)
+        else:
+            self.send_response(200, "OKAY")
+            self.end_headers()
+            self.wfile.write("Unknown request")
+
+    files = {
+        "/" : "web/track.html",
+        "/main.js" : "web/main.js",
+        "/config" : "web/config.html",
+        "/config.js" : "web/config.js",
+        "/raw" : "web/raw.html",
+        "/raw.js" : "web/raw.js"
+    }
+
+    requests = {
+        "/paths" : get_paths
+        "/readouts" : get_readouts
+        "/asc.mp3" : get_ascent_audio
+        "/alt.mp3" : get_altitude_audio
+    }
+    def do_GET(self):
+        if self.path in HARBORHandler.files:
+            self.send_file(HARBORHandler.files[self.path])
+        elif any(self.path.startswith(endpoint) for endpoint in HARBORHandler.requests):
+            requests = self.path.replace('?','&').split("&")
+            HARBORHandler.requests[self.path](self, requests)
+        else:
+            self.send_response(200, "OKAY")
+            self.end_headers()
+            self.wfile.write("Unknown request")
 
     def do_POST(self):
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-Type'],}
-        )
-        try:
-            name = form['name'].value
-        except KeyError:
-            name = self.path[1:]
-        for field in form:
-            if field != 'name':
-                self.server.harbor.setParam(name, field, form[field].value)
-        self.out_meta()
-
-    def do_GET(self):
-        ADDPOINT = '/addpoint/'
-        ADDCALLSIGN = '/addcallsign/'
-        REMOVECALLSIGN = '/removecallsign/'
-        GMAPS = '/gmaps/'
-        STATICS = ('/audio', '/leaflet', '/jquery', '/web',
-                   '/scripts')
-        if self.path == "/trackdata":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            self.json_out(self.server.harbor.trackPoints)
-        elif self.path.startswith(GMAPS):
-            try:
-                image = self.server.harbor.gmaps.open(self.path[1:], 'r')
-                self.send_response(200, "OKAY")
-                self.end_headers()
-                copyfileobj(image, self.wfile)
-            except KeyError:
-                self.send_response(404, "File Not Found")
-                self.end_headers()
-                self.wfile.write('We dont have that image: infinite sadness')
-        elif self.path == "/tracks":
-            self.out_tracks()
-        elif self.path == "/log":
-            self.out_log()
-        elif self.path == "/reset":
-            self.server.harbor.initialize()
-        elif self.path == "/clearpaths":
-            self.server.harbor.resetPaths()
-        elif self.path == "/meta":
-            self.out_meta()
-        elif self.path == "/info":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            self.json_out(self.server.harbor.getInfo())
-        elif self.path == "/asc.mp3":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            audio = open("./audio/asc" + str(abs(int(self.server.harbor.readouts["ascent"] / 100))) + ".mp3", 'rb')
-            copyfileobj(audio, self.wfile)
-        elif self.path == "/alt.mp3":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            audio = open("./audio/alt" + str(int(self.server.harbor.readouts["altitude"] / 1000)) + ".mp3", 'rb')
-            copyfileobj(audio, self.wfile)
-        elif self.path == "/":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            copyfileobj(open('web/track.html', 'r'), self.wfile)
-        elif self.path == "/config":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            copyfileobj(open('web/config.html', 'r'), self.wfile)
-        elif self.path == "/active":
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            copyfileobj(open('web/active.html', 'r'), self.wfile)
-        elif self.path.startswith(ADDCALLSIGN):
-            callsign, track = self.path[len(ADDCALLSIGN):].split('/')
-            self.server.harbor.addCallsign(cleanup(callsign), cleanup(track))
-            self.out_tracks()
-        elif self.path.startswith(REMOVECALLSIGN):
-            callsign, track = self.path[len(REMOVECALLSIGN):].split('/')
-            self.server.harbor.removeCallsign(cleanup(callsign), cleanup(track))
-            self.out_tracks()
-
-        elif self.path.startswith(ADDPOINT):
-            track, point = self.path[len(ADDPOINT):].split('/')
-            point = point.split(',')
-            point = tuple(float(part) for part in point)
-            self.server.harbor.add_point(track, helper.Point(*point))
-        elif reduce(lambda a, b: a or b, (self.path.startswith(k) for k in STATICS)):
-            # if the path starts with any of the statics, run it through
-            # SimpleHTTPRequestHandler. This effictively serves it statically.
-            SimpleHTTPRequestHandler.do_GET(self)
-        else:
-            # for now this is nicer than an HTTP error.
-            self.send_response(200, "OKAY")
-            self.end_headers()
-            self.wfile.write('Missing Request' + "\n")
+        pass
 
 class Harbor(object):
     def __init__(self):
@@ -158,9 +128,29 @@ class Harbor(object):
                 self.log = defaultdict(defaultStyle)
         except (IOError, EOFError):
             with self.mainlock:
-                self.paths = defaultdict(list)
-                self.save_state()
+                self._initialize_defaults()
         self.gmaps = ZipFile("gmaps.zip", "r")
+
+    def _initialize_defaults(self):
+        self.paths = defaultdict(list)
+        self.tracked = []
+        self.save_state()
+
+    def get_ascent(self, callsign):
+        track = self.paths[callsign]
+        if len(track) < 2:
+            return None
+        point = track[-1]
+        point_before = track[-2]
+        return int((float(point.altitude) - float(point_before.altitude)) /
+                 (float(point_before.time - point.time) / 60) / 100) * 100
+
+    def get_altitude(self, callsign):
+        track = self.paths[callsign]
+        if len(track) < 2:
+            return None
+        point = track[-1]
+        return point.altitude
 
     def get_readouts(self, callsign, VOR = (40.1490956, -110.1270281)):
         track = self.paths[callsign]
@@ -169,8 +159,7 @@ class Harbor(object):
         point = track[-1]
         point_before = track[-2]
         readouts = {}
-        readouts["ascent"] = int((float(point.altitude) - float(point_before.altitude)) /
-                 (float(point_before.time - point.time) / 60) / 100) * 100
+        readouts["ascent"] = self.get_ascent(callsign)
         readouts["altitude"] = point.altitude
         readouts["last_packet"] = point.time
         x_dist = helper.miles_to_longitude(point.longitude - VOR[1], point.latitude)
@@ -219,18 +208,22 @@ if __name__ == "__main__":
     if "-r" in sys.argv:
         filename = sys.argv[sys.argv.index("-r")+1]
 
+    print "Starting HARBOR tracker"
     h = Harbor()
 
     if filename:
+        print "Beginning replay of: " + str(filename)
         player = Thread(target=lambda: replay.Replay(filename,h))
         player.start()
     else:
         comport = None
+        print "Starting D710 interface"
         if os.name == "nt":
             comport = raw_input("What is the name of the COM Port? (COM1, etc) ")
 
         t = Thread(target=lambda: D710.main(h, comport))
         t.start()
 
+    print "Starting web server"
     httpd = HARBORHTTPServer(h)
     httpd.serve_forever()
