@@ -5,8 +5,8 @@ import math
 class Point(namedtuple('Point', ['time', 'latitude', 'longitude', 'altitude'])):
     __slots__ = ()
 
-    def __str__(self):
-        return "[" + (", ".join(str(p) for p in self)) + "]"
+    # def __str__(self):
+    #     return "[" + (", ".join(str(p) for p in self)) + "]"
 
 
 earth_radius = 3960.0
