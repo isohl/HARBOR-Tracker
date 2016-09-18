@@ -196,7 +196,7 @@ class Harbor(object):
     def save_state(self):
         with self.mainlock:
             dat = self.paths
-        with open('state.sheyne', 'wb') as f:
+        with open('.state', 'wb') as f:
             pickle.dump(dat, f, 2)
 
 
