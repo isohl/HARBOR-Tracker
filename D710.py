@@ -140,6 +140,8 @@ def main(h, com=None):
                         if gpscompatible:
                             # If it is a D710 packet, parse it.
                             latlong = decodeTNC.latlong(out)  # returned as (latitude,longitude)
+                            if latlong is None:
+                                continue
                             # If we are plotting D710 tracks, Plot it on Google Earth
                             point = helper.Point(time=currentTimestamp, altitude=0, latitude=latlong[1],
                                                  longitude=latlong[0])

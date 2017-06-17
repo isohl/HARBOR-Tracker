@@ -43,6 +43,8 @@ def latlong(newdata):
     """Return the latitude and longitude of a given packet"""
     # Delimit the data to determine correct chunks
     output = delimit(newdata)
+    if output is None:
+        return None
     # Convert latitude and longitude from Degrees:minutes to decimal degrees
     latitude = str(float(output[0][:2]) + (float(output[0][2:7]) / 60))
     longitude = "-" + str(float(output[1][:3]) + (float(output[1][3:8]) / 60))
