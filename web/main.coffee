@@ -1,8 +1,18 @@
-map = L.map('map').setView([40.191484, -110.385534], 13)
-L.tileLayer('../gmaps/lyrs=y&hl=en&x={x}&y={y}&z={z}.jpg', {
-#L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
+localMap = L.tileLayer('../gmaps/lyrs=y&hl=en&x={x}&y={y}&z={z}.jpg', {
 	attribution: 'Imagery &copy <a href="http//maps.google.com">Google</a>',
-	minZoom: 11, maxZoom: 17}).addTo(map)
+	minZoom: 11, maxZoom: 17})
+onlineMap = L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
+	attribution: 'Imagery &copy <a href="http//maps.google.com">Google</a>',
+	minZoom: 11, maxZoom: 17})
+
+map = L.map('map', {layers:[localMap]}).setView([40.191484, -110.385534], 13)
+baseLayers = {
+	"Local Data": localMap,
+	"Online Data": onlineMap
+}
+
+L.control.layers(baseLayers).addTo(map)
+
 lines = {}
 count = 0
 oldId = {}
